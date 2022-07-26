@@ -6,8 +6,8 @@ import './ImageLinkForm.css'
 const ImageLinkForm = ({onInputChange, onButtonSubmit}) => {
     return (
         <div className='ma4 mt0'>
-            <p className='f3'>
-                {'This face recognition app will detect faces in pictures. Give it a try!'}
+            <p className='f3 white'>
+                {'This face recognition app will detect faces in pictures. Try it out!'}
             </p>
             <div className='center'>
                 <div className='form center pa4 br3 shadow-5'>

@@ -20,10 +20,6 @@ const app = new Clarifai.App({
 //particlesInit and optionsParticles are all for the moving background
 const particlesInit = async (main) => {
   console.log(main);
-
-  // you can initialize the tsParticles instance (main) here, adding custom shapes or presets
-  // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
-  // starting from v2 you can add only the features you need reducing the bundle size
   await loadFull(main);
 };
 
@@ -59,7 +55,7 @@ const optionsParticles = {
       color: "#ffffff",
       distance: 150,
       enable: true,
-      opacity: 0.5,
+      opacity: 0.1,
       width: 1,
     },
     collisions: {
@@ -72,18 +68,18 @@ const optionsParticles = {
         default: "bounce",
       },
       random: false,
-      speed: 6,
+      speed: 1,
       straight: false,
     },
     number: {
       density: {
         enable: true,
-        area: 800,
+        area: 500,
       },
       value: 80,
     },
     opacity: {
-      value: 0,
+      value: .01,
     },
     shape: {
       type: "circle",
@@ -105,7 +101,7 @@ class App extends Component {
     this.state = {
       input:'',
       imageUrl:'',
-      box:{},
+      boxes:[],
       route: 'signin',
       isSignedIn: false,
       user: {
@@ -129,27 +125,27 @@ class App extends Component {
     }})
   }
 
-
   calculateFaceLocation = (data) =>{
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const clarifaiFaces = data.outputs[0].data.regions;
     const image = document.getElementById('inputimage');
     //want to get the width and height of the original image so we can use the region info (which will be as a percentage) to draw the regions of the box
+
     const width = Number(image.width);
     const height = Number(image.height);
-    
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
 
-
+    const facesArray = clarifaiFaces.map(face => (
+      {
+      leftCol: face.region_info.bounding_box.left_col * width,
+      topRow: face.region_info.bounding_box.top_row * height,
+      rightCol: width - (face.region_info.bounding_box.right_col * width),
+      bottomRow: height - (face.region_info.bounding_box.bottom_row * height)
+      }
+    ))
+    return facesArray;
   }
 
-  displayFaceBox = (box) =>{
-    console.log(box);
-    this.setState({box: box});
+  displayFaceBox = (boxes) =>{
+    this.setState({boxes: boxes}, () => console.log(this.state.boxes));
   }
 
   onInputChange =(event) =>{
@@ -193,7 +189,7 @@ class App extends Component {
   }
   
   render(){
-    const { isSignedIn, imageUrl, route, box } = this.state;
+    const { isSignedIn, imageUrl, route, boxes } = this.state;
     return (
       <div className="App">
         <Particles
@@ -201,7 +197,7 @@ class App extends Component {
         init={particlesInit}
         loaded={particlesLoaded}
         options={optionsParticles}
-      />
+        />
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange}/>
         {route === 'home'?
           <div>
@@ -214,7 +210,10 @@ class App extends Component {
               onInputChange={this.onInputChange} 
               onButtonSubmit={this.onButtonSubmit}
             />
-            <FaceRecognition box={box} imageUrl={imageUrl}/>
+            <FaceRecognition 
+              boxes={boxes} 
+              imageUrl={imageUrl}
+            />
           </div>
           
           : (
