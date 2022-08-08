@@ -33,7 +33,8 @@ class Register extends React.Component {
         })
             .then(response => response.json())
             .then(user =>{
-                if (user){
+                //make sure the user has proper credentials in order to go to profile -> user.id
+                if (user.id){
                     this.props.loadUser(user)
                     this.props.onRouteChange('home');
                     //console.log(user);

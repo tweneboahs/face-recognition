@@ -5,7 +5,8 @@ class Signin extends React.Component {
         super(props);
         this.state = {
             signInEmail:'',
-            signInPassword: ''
+            signInPassword: '',
+            signInError:''
         }
     }
 
@@ -28,8 +29,10 @@ class Signin extends React.Component {
             .then(response => response.json())
             .then(user =>{
                 if (user.id){
-                    this.props.loadUser(user)
+                    this.props.loadUser(user);
                     this.props.onRouteChange('home');
+                } else {
+                    this.setState({signInError: 'You have entered an invalid username or password.'});
                 }
             })
         
@@ -78,6 +81,7 @@ class Signin extends React.Component {
                                 className="f6 link dim black db pointer">
                                 Register
                             </p>
+                            <p className="fw6" style={{color: "red" }}>{this.state.signInError}</p>
                         </div>
                     </div>
                 </main>
